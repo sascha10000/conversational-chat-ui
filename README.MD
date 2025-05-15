@@ -10,9 +10,28 @@ npm install s10k-conversational-agent
 
 ## Basic Usage
 
+### Using npm (recommended for bundlers like Vite, Webpack, etc.)
 ```html
 <script type="module">
   import 's10k-conversational-agent';
+</script>
+
+<s10k-conversational-agent></s10k-conversational-agent>
+```
+
+### Using CDN (for simple HTTP servers)
+```html
+<script type="module">
+  import 'https://cdn.jsdelivr.net/npm/s10k-conversational-agent/dist/s10k-conversational-agent.js';
+</script>
+
+<s10k-conversational-agent></s10k-conversational-agent>
+```
+
+### Using local files (for simple HTTP servers)
+```html
+<script type="module">
+  import './node_modules/s10k-conversational-agent/dist/s10k-conversational-agent.js';
 </script>
 
 <s10k-conversational-agent></s10k-conversational-agent>
@@ -134,7 +153,16 @@ Here's a complete example using vanilla JavaScript that demonstrates all feature
 <head>
   <title>Chat Example</title>
   <script type="module">
-    import 's10k-conversational-agent';
+    // Choose one of these import methods:
+    
+    // 1. For bundlers (Vite, Webpack, etc.)
+    // import 's10k-conversational-agent';
+    
+    // 2. For CDN
+    import 'https://cdn.jsdelivr.net/npm/s10k-conversational-agent/dist/s10k-conversational-agent.js';
+    
+    // 3. For local files (adjust path as needed)
+    // import './node_modules/s10k-conversational-agent/dist/s10k-conversational-agent.js';
   </script>
   <style>
     body {

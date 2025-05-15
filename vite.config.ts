@@ -10,15 +10,9 @@ export default defineConfig({
       formats: ['es']
     },
     rollupOptions: {
-      external: ['lit', 'lit/decorators.js'],
       output: {
-        globals: {
-          lit: 'Lit',
-          'lit/decorators.js': 'LitDecorators'
-        },
         assetFileNames: (assetInfo) => {
-          if (assetInfo.name === 'style.css') return 's10k-conversational-agent.css';
-          return assetInfo.name;
+          return assetInfo.name === 'style.css' ? 's10k-conversational-agent.css' : assetInfo.name || 'asset';
         }
       }
     },
