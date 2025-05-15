@@ -28,10 +28,10 @@ export class S10kConversationalAgent extends LitElement {
       --chat-border: var(--s10k-chat-border, #333333);
       --chat-input-bg: var(--s10k-chat-input-bg, #2d2d2d);
       --chat-input-text: var(--s10k-chat-input-text, #ffffff);
-      --chat-button-bg: var(--s10k-chat-button-bg, #007bff);
-      --chat-button-hover: var(--s10k-chat-button-hover, #0056b3);
+      --chat-button-bg: var(--s10k-chat-button-bg, #7c3aed);
+      --chat-button-hover: var(--s10k-chat-button-hover, #6d28d9);
       --chat-button-disabled: var(--s10k-chat-button-disabled, #404040);
-      --chat-message-user-bg: var(--s10k-chat-message-user-bg, #007bff);
+      --chat-message-user-bg: var(--s10k-chat-message-user-bg, #7c3aed);
       --chat-message-user-text: var(--s10k-chat-message-user-text, #ffffff);
       --chat-message-agent-bg: var(--s10k-chat-message-agent-bg, #2d2d2d);
       --chat-message-agent-text: var(--s10k-chat-message-agent-text, #ffffff);
@@ -60,25 +60,66 @@ export class S10kConversationalAgent extends LitElement {
       background-color: var(--chat-bg);
     }
 
-    .message {
-      max-width: 80%;
-      margin: 0.5rem 0;
-      padding: 0.75rem 1rem;
-      border-radius: 12px;
-      line-height: 1.4;
+    .message-container {
+      display: flex;
+      align-items: flex-start;
+      margin: 1rem 0;
+      position: relative;
+      height: fit-content;
     }
 
-    .message.user {
+    .message-container.user {
+      flex-direction: row-reverse;
+    }
+
+    .name-indicator {
+      font-size: 0.75rem;
+      opacity: 0.7;
+      padding: 0.25rem 0.5rem;
+      margin: 0 0.5rem;
+      align-self: flex-start;
+    }
+
+    .message {
+      max-width: 80%;
+      border-radius: 12px;
+      line-height: 1.4;
+      position: relative;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      white-space: pre-wrap;
+      height: fit-content;
+    }
+
+    .message-content {
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      height: fit-content;
+    }
+
+    .message-text {
+      margin-bottom: 0.25rem;
+    }
+
+    .message .timestamp {
+      font-size: 0.75rem;
+      opacity: 0.7;
+      text-align: right;
+    }
+
+    .message.user .message-content {
       background-color: var(--chat-message-user-bg);
       color: var(--chat-message-user-text);
-      margin-left: auto;
       border-bottom-right-radius: 4px;
     }
 
-    .message.agent {
+    .message.agent .message-content {
       background-color: var(--chat-message-agent-bg);
       color: var(--chat-message-agent-text);
-      margin-right: auto;
       border-bottom-left-radius: 4px;
     }
 
@@ -211,8 +252,27 @@ export class S10kConversationalAgent extends LitElement {
   @property({ type: String })
   name: string = 'Agent';
 
+  private messagesContainer: HTMLElement | null = null;
+
   constructor() {
     super();
+  }
+
+  firstUpdated() {
+    this.messagesContainer = this.shadowRoot?.querySelector('.messages') as HTMLElement;
+    this.scrollToBottom();
+  }
+
+  private scrollToBottom() {
+    if (this.messagesContainer) {
+      this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+    }
+  }
+
+  updated(changedProperties: Map<string, any>) {
+    if (changedProperties.has('messages') || changedProperties.has('isLoading')) {
+      this.scrollToBottom();
+    }
   }
 
   private handleInput(e: Event) {
@@ -289,14 +349,35 @@ export class S10kConversationalAgent extends LitElement {
     }
   }
 
+  private formatTimestamp(timestamp: number): string {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
   render() {
     return html`
       <div class="chat-container">
         <div class="messages">
           ${this.messages.map(
             (message) => html`
-              <div class="message ${message.sender}">
-                ${message.text}
+              <div class="message-container ${message.sender}">
+                ${message.sender === 'user' ? html`
+                  <div class="message ${message.sender}">
+                    <div class="message-content">
+                      <div class="message-text">${message.text}</div>
+                      <span class="timestamp">${this.formatTimestamp(message.timestamp)}</span>
+                    </div>
+                  </div>
+                  <span class="name-indicator">You</span>
+                ` : html`
+                  <div class="message ${message.sender}">
+                    <div class="message-content">
+                      <div class="message-text">${message.text}</div>
+                      <span class="timestamp">${this.formatTimestamp(message.timestamp)}</span>
+                    </div>
+                  </div>
+                  <span class="name-indicator">${this.name}</span>
+                `}
               </div>
             `
           )}
