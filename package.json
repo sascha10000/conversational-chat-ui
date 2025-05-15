@@ -1,6 +1,6 @@
 {
     "name": "s10k-conversational-agent",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "A modern, customizable chat interface web component built with Lit for easy AI integration and enhanced input methods.",
     "type": "module",
     "main": "dist/s10k-conversational-agent.js",
@@ -24,16 +24,11 @@
     ],
     "author": "Your Name",
     "license": "MIT",
-    "dependencies": {
-        "lit": "^3.1.0"
-    },
     "devDependencies": {
         "typescript": "^5.0.0",
         "vite": "^5.0.0",
         "@types/node": "^20.0.0",
-        "vite-plugin-dts": "^3.7.0"
-    },
-    "peerDependencies": {
+        "vite-plugin-dts": "^3.7.0",
         "lit": "^3.1.0"
     },
     "repository": {
