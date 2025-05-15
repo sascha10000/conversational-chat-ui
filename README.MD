@@ -126,37 +126,145 @@ s10k-conversational-agent {
 
 ## Complete Example
 
+Here's a complete example using vanilla JavaScript that demonstrates all features:
+
 ```html
 <!DOCTYPE html>
 <html>
 <head>
+  <title>Chat Example</title>
   <script type="module">
     import 's10k-conversational-agent';
   </script>
   <style>
-    s10k-conversational-agent {
-      --s10k-chat-bg: #1a1a1a;
-      --s10k-chat-button-bg: #7c3aed;
+    body {
+      margin: 0;
+      padding: 2rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #f5f5f5;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+    }
+
+    .controls {
+      margin-top: 1rem;
+      display: flex;
+      gap: 1rem;
+    }
+
+    .controls input {
+      flex: 1;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .controls button {
+      padding: 0.5rem 1rem;
+      background-color: #7c3aed;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .controls button:hover {
+      background-color: #6d28d9;
+    }
+
+    .log {
+      margin-top: 1rem;
+      padding: 1rem;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .log pre {
+      margin: 0;
+      white-space: pre-wrap;
     }
   </style>
 </head>
 <body>
-  <s10k-conversational-agent
-    name="Assistant"
-    @message=${(e) => console.log('Message:', e.detail)}
-    @userMessage=${(e) => console.log('User message:', e.detail)}
-    @agentMessage=${(e) => console.log('Agent message:', e.detail)}
-  ></s10k-conversational-agent>
+  <div class="container">
+    <s10k-conversational-agent id="chat"></s10k-conversational-agent>
+    
+    <div class="controls">
+      <input type="text" id="agent-input" placeholder="Type agent message...">
+      <button onclick="sendAgentMessage()">Send as Agent</button>
+    </div>
+
+    <div class="log">
+      <h3>Event Log</h3>
+      <pre id="event-log"></pre>
+    </div>
+  </div>
 
   <script>
-    const chat = document.querySelector('s10k-conversational-agent');
-    
-    // Send a message programmatically
-    chat.sendMessage('Hello! How can I help you?', 'agent');
+    // Get references to elements
+    const chat = document.getElementById('chat');
+    const agentInput = document.getElementById('agent-input');
+    const eventLog = document.getElementById('event-log');
+    let logCount = 0;
+
+    // Format timestamp for log display
+    function formatTimestamp(timestamp) {
+      return new Date(timestamp).toLocaleTimeString();
+    }
+
+    // Log events to the event log
+    function logEvent(event) {
+      const message = event.detail;
+      const logEntry = `[${formatTimestamp(message.timestamp)}] ${message.sender.toUpperCase()}: ${message.text}`;
+      
+      logCount++;
+      eventLog.textContent = `${logEntry}\n${eventLog.textContent}`;
+      
+      // Keep only the last 10 messages in the log
+      if (logCount > 10) {
+        const lines = eventLog.textContent.split('\n');
+        eventLog.textContent = lines.slice(0, 10).join('\n');
+      }
+    }
+
+    // Send message as agent
+    function sendAgentMessage() {
+      const text = agentInput.value.trim();
+      if (text) {
+        chat.sendMessage(text, 'agent');
+        agentInput.value = '';
+      }
+    }
+
+    // Add event listeners
+    chat.addEventListener('message', logEvent);
+    chat.addEventListener('userMessage', (e) => console.log('User message:', e.detail));
+    chat.addEventListener('agentMessage', (e) => console.log('Agent message:', e.detail));
+
+    // Send initial greeting
+    setTimeout(() => {
+      chat.sendMessage('Hello! How can I help you today?', 'agent');
+    }, 1000);
   </script>
 </body>
 </html>
 ```
+
+This example demonstrates:
+- Basic component setup
+- Custom styling
+- Event handling
+- Programmatic message sending
+- Event logging
+- Initial greeting message
 
 ## Browser Support
 

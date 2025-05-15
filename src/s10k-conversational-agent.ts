@@ -280,6 +280,13 @@ export class S10kConversationalAgent extends LitElement {
     this.inputValue = input.value;
   }
 
+  private handleKeyDown(e: KeyboardEvent) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      this.handleSubmit();
+    }
+  }
+
   private handleMessage(message: Message) {
     // Call the general message callback if provided
     if (this.onMessage) {
@@ -397,6 +404,7 @@ export class S10kConversationalAgent extends LitElement {
             type="text"
             .value=${this.inputValue}
             @input=${this.handleInput}
+            @keydown=${this.handleKeyDown}
             placeholder="Type your message..."
             ?disabled=${this.isLoading}
           />
