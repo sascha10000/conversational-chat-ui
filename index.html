@@ -99,7 +99,7 @@
 
         function logEvent(event) {
             const message = event.detail;
-            const logEntry = `[${formatTimestamp(message.timestamp)}] ${message.sender.toUpperCase()}: ${message.text}`;
+            const logEntry = `[${formatTimestamp(message.timestamp)}] ${message.sender.toUpperCase()}: ${message.content.text}`;
             
             logCount++;
             logElement.textContent = `${logEntry}\n${logElement.textContent}`;

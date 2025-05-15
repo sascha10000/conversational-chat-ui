@@ -1,18 +1,24 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { ChatInput, InputType } from './s10k-chat-input';
 
 // Define the message type
 export type MessageSender = 'user' | 'agent';
 
-export interface Message {
+export interface TextMessage {
+  type: 'text';
   text: string;
+}
+
+export interface Message {
+  content: TextMessage;
   sender: MessageSender;
   timestamp: number;
 }
 
 // Define the event type
 export interface MessageEvent {
-  text: string;
+  content: TextMessage;
   sender: MessageSender;
   timestamp: number;
 }
@@ -234,8 +240,8 @@ export class S10kConversationalAgent extends LitElement {
   @property({ type: Array })
   messages: Message[] = [];
 
-  @property({ type: String })
-  inputValue: string = '';
+  @property({ type: Object })
+  currentInput: ChatInput = { type: 'text' };
 
   @property({ type: Function })
   onMessage: (message: MessageEvent) => void = (_) => {};
@@ -256,6 +262,8 @@ export class S10kConversationalAgent extends LitElement {
 
   constructor() {
     super();
+    this.messages = [];
+    this.handleInputSubmit = this.handleInputSubmit.bind(this);
   }
 
   firstUpdated() {
@@ -275,39 +283,42 @@ export class S10kConversationalAgent extends LitElement {
     }
   }
 
-  private handleInput(e: Event) {
-    const input = e.target as HTMLInputElement;
-    this.inputValue = input.value;
-  }
+  private handleInputSubmit(value: string) {
+    if (!value.trim() || this.isLoading) return;
 
-  private handleKeyDown(e: KeyboardEvent) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      this.handleSubmit();
-    }
+    const userMessage: Message = {
+      content: {
+        type: 'text',
+        text: value
+      },
+      sender: 'user',
+      timestamp: Date.now()
+    };
+    
+    this.messages = [...(this.messages || []), userMessage];
+    
+    this.handleMessage(userMessage);
+    
+    this.isLoading = true;
   }
 
   private handleMessage(message: Message) {
-    // Call the general message callback if provided
     if (this.onMessage) {
       this.onMessage(message);
     }
 
-    // Call the specific message callback if provided
     if (message.sender === 'user' && this.onUserMessage) {
       this.onUserMessage(message);
     } else if (message.sender === 'agent' && this.onAgentMessage) {
       this.onAgentMessage(message);
     }
 
-    // Dispatch the general message event
     this.dispatchEvent(new CustomEvent('message', {
       detail: message,
       bubbles: true,
       composed: true
     }));
 
-    // Dispatch the specific message event
     this.dispatchEvent(new CustomEvent(`${message.sender}Message`, {
       detail: message,
       bubbles: true,
@@ -315,45 +326,30 @@ export class S10kConversationalAgent extends LitElement {
     }));
   }
 
-  private handleSubmit() {
-    if (!this.inputValue.trim() || this.isLoading) return;
-
-    const userMessage: Message = {
-      text: this.inputValue,
-      sender: 'user',
-      timestamp: Date.now()
-    };
-    
-    // Add user message
-    this.messages = [...this.messages, userMessage];
-    
-    // Handle the message (both callback and event)
-    this.handleMessage(userMessage);
-    
-    this.inputValue = '';
-    this.isLoading = true;
-  }
-
-  /**
-   * Public method to send a message from outside the component
-   * @param text The message text to send
-   * @param sender The sender of the message ('user' or 'agent')
-   */
   public sendMessage(text: string, sender: MessageSender = 'agent') {
     const message: Message = {
-      text,
+      content: {
+        type: 'text',
+        text
+      },
       sender,
       timestamp: Date.now()
     };
-    this.messages = [...this.messages, message];
+    this.messages = [...(this.messages || []), message];
     
-    // Handle the message (both callback and event)
     this.handleMessage(message);
     
-    // If this is an agent message, enable the input again
     if (sender === 'agent') {
       this.isLoading = false;
     }
+  }
+
+  public setInputType(type: InputType, options?: { label: string; value: string }[], placeholder?: string) {
+    this.currentInput = {
+      type,
+      options,
+      placeholder
+    };
   }
 
   private formatTimestamp(timestamp: number): string {
@@ -371,7 +367,7 @@ export class S10kConversationalAgent extends LitElement {
                 ${message.sender === 'user' ? html`
                   <div class="message ${message.sender}">
                     <div class="message-content">
-                      <div class="message-text">${message.text}</div>
+                      <div class="message-text">${message.content.text}</div>
                       <span class="timestamp">${this.formatTimestamp(message.timestamp)}</span>
                     </div>
                   </div>
@@ -379,7 +375,7 @@ export class S10kConversationalAgent extends LitElement {
                 ` : html`
                   <div class="message ${message.sender}">
                     <div class="message-content">
-                      <div class="message-text">${message.text}</div>
+                      <div class="message-text">${message.content.text}</div>
                       <span class="timestamp">${this.formatTimestamp(message.timestamp)}</span>
                     </div>
                   </div>
@@ -399,23 +395,12 @@ export class S10kConversationalAgent extends LitElement {
             </div>
           ` : ''}
         </div>
-        <div class="input-container">
-          <input
-            type="text"
-            .value=${this.inputValue}
-            @input=${this.handleInput}
-            @keydown=${this.handleKeyDown}
-            placeholder="Type your message..."
-            ?disabled=${this.isLoading}
-          />
-          <button 
-            @click=${this.handleSubmit}
-            ?disabled=${this.isLoading}
-          >
-            Send
-          </button>
-        </div>
+        <s10k-chat-input
+          .input=${this.currentInput}
+          .disabled=${this.isLoading}
+          .onSubmit=${this.handleInputSubmit}
+        ></s10k-chat-input>
       </div>
     `;
   }
-} 
+}
