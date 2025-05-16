@@ -1,6 +1,6 @@
 {
     "name": "s10k-conversational-agent",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "description": "A modern, customizable chat interface web component built with Lit for easy AI integration and enhanced input methods.",
     "type": "module",
     "main": "dist/s10k-conversational-agent.js",
