@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import { ChatInput, InputType } from './s10k-chat-input';
+import { ChatInput, InputType, InputOption } from './s10k-chat-input';
 
 // Define the message type
 export type MessageSender = 'user' | 'agent';
@@ -10,15 +10,25 @@ export interface TextMessage {
   text: string;
 }
 
+export interface InputMessage {
+  type: 'input';
+  text: string;
+  inputConfig: {
+    type: InputType;
+    options?: InputOption[];
+    placeholder?: string;
+  };
+}
+
 export interface Message {
-  content: TextMessage;
+  content: TextMessage | InputMessage;
   sender: MessageSender;
   timestamp: number;
 }
 
 // Define the event type
 export interface MessageEvent {
-  content: TextMessage;
+  content: TextMessage | InputMessage;
   sender: MessageSender;
   timestamp: number;
 }
@@ -278,9 +288,35 @@ export class S10kConversationalAgent extends LitElement {
   }
 
   updated(changedProperties: Map<string, any>) {
-    if (changedProperties.has('messages') || changedProperties.has('isLoading')) {
+    if (changedProperties.has('messages')) {
       this.scrollToBottom();
+      // Update input type based on the last agent message
+      this.updateInputTypeFromLastAgentMessage();
     }
+  }
+
+  private updateInputTypeFromLastAgentMessage() {
+    // Find the last agent message
+    const lastAgentMessage = [...this.messages].reverse().find(m => m.sender === 'agent');
+    
+    if (lastAgentMessage) {
+      try {
+        // Try to parse the message text as JSON
+        const parsedContent = JSON.parse(lastAgentMessage.content.text);
+        if (parsedContent.inputConfig) {
+          this.currentInput = {
+            type: parsedContent.inputConfig.type,
+            options: parsedContent.inputConfig.options,
+            placeholder: parsedContent.inputConfig.placeholder
+          };
+          return;
+        }
+      } catch (e) {
+        // If parsing fails, it's a regular text message
+      }
+    }
+    // Default to text input if no input config is found
+    this.currentInput = { type: 'text' };
   }
 
   private handleInputSubmit(value: string) {
@@ -296,9 +332,7 @@ export class S10kConversationalAgent extends LitElement {
     };
     
     this.messages = [...(this.messages || []), userMessage];
-    
     this.handleMessage(userMessage);
-    
     this.isLoading = true;
   }
 
@@ -336,7 +370,6 @@ export class S10kConversationalAgent extends LitElement {
       timestamp: Date.now()
     };
     this.messages = [...(this.messages || []), message];
-    
     this.handleMessage(message);
     
     if (sender === 'agent') {
@@ -344,17 +377,18 @@ export class S10kConversationalAgent extends LitElement {
     }
   }
 
-  public setInputType(type: InputType, options?: { label: string; value: string }[], placeholder?: string) {
-    this.currentInput = {
-      type,
-      options,
-      placeholder
-    };
-  }
-
   private formatTimestamp(timestamp: number): string {
     const date = new Date(timestamp);
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  private getDisplayText(message: Message): string {
+    try {
+      const parsedContent = JSON.parse(message.content.text);
+      return parsedContent.text || message.content.text;
+    } catch (e) {
+      return message.content.text;
+    }
   }
 
   render() {
@@ -367,7 +401,7 @@ export class S10kConversationalAgent extends LitElement {
                 ${message.sender === 'user' ? html`
                   <div class="message ${message.sender}">
                     <div class="message-content">
-                      <div class="message-text">${message.content.text}</div>
+                      <div class="message-text">${this.getDisplayText(message)}</div>
                       <span class="timestamp">${this.formatTimestamp(message.timestamp)}</span>
                     </div>
                   </div>
@@ -375,7 +409,7 @@ export class S10kConversationalAgent extends LitElement {
                 ` : html`
                   <div class="message ${message.sender}">
                     <div class="message-content">
-                      <div class="message-text">${message.content.text}</div>
+                      <div class="message-text">${this.getDisplayText(message)}</div>
                       <span class="timestamp">${this.formatTimestamp(message.timestamp)}</span>
                     </div>
                   </div>

@@ -61,6 +61,7 @@ export class S10kChatInput extends LitElement {
       font-size: 1rem;
       font-weight: 500;
       transition: background-color 0.2s ease;
+      white-space: nowrap;
     }
 
     button:hover:not(:disabled) {
@@ -77,6 +78,10 @@ export class S10kChatInput extends LitElement {
       flex-direction: column;
       gap: 0.5rem;
       padding: 0.5rem;
+      flex: 1;
+      background-color: var(--chat-input-bg, #2d2d2d);
+      border: 1px solid var(--chat-border, #333333);
+      border-radius: 8px;
     }
 
     .radio-option {
@@ -87,14 +92,18 @@ export class S10kChatInput extends LitElement {
       border-radius: 4px;
       cursor: pointer;
       transition: background-color 0.2s ease;
+      color: var(--chat-input-text, #ffffff);
     }
 
     .radio-option:hover {
-      background-color: var(--chat-input-bg, #2d2d2d);
+      background-color: var(--chat-button-hover, #6d28d9);
     }
 
     .radio-option input[type="radio"] {
       margin: 0;
+      width: 1.2em;
+      height: 1.2em;
+      cursor: pointer;
     }
 
     select {

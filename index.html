@@ -71,6 +71,44 @@
         .controls button:hover {
             background-color: #0056b3;
         }
+
+        .demo-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .demo-buttons button {
+            padding: 0.5rem 1rem;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+
+        .demo-buttons button:hover {
+            background-color: #5a6268;
+        }
+
+        .demo-buttons button.radio {
+            background-color: #28a745;
+        }
+
+        .demo-buttons button.radio:hover {
+            background-color: #218838;
+        }
+
+        .demo-buttons button.dropdown {
+            background-color: #17a2b8;
+        }
+
+        .demo-buttons button.dropdown:hover {
+            background-color: #138496;
+        }
     </style>
 </head>
 <body>
@@ -80,6 +118,12 @@
         <div class="controls">
             <input type="text" id="agent-message" placeholder="Type agent message...">
             <button onclick="sendAgentMessage()">Send as Agent</button>
+        </div>
+
+        <div class="demo-buttons">
+            <button onclick="sendRadioMessage()" class="radio">Send Radio Options</button>
+            <button onclick="sendDropdownMessage()" class="dropdown">Send Dropdown Options</button>
+            <button onclick="sendTextMessage()">Send Text Input</button>
         </div>
 
         <div class="event-log">
@@ -125,6 +169,56 @@
                 input.value = '';
             }
         }
+
+        function sendRadioMessage() {
+            const input = document.getElementById('agent-message');
+            const message = {
+                text: "Please select your preferred option:",
+                inputConfig: {
+                    type: 'radio',
+                    options: [
+                        { label: 'Option 1', value: '1' },
+                        { label: 'Option 2', value: '2' },
+                        { label: 'Option 3', value: '3' }
+                    ]
+                }
+            };
+            input.value = JSON.stringify(message, null, 2);
+        }
+
+        function sendDropdownMessage() {
+            const input = document.getElementById('agent-message');
+            const message = {
+                text: "Please select from the dropdown:",
+                inputConfig: {
+                    type: 'dropdown',
+                    options: [
+                        { label: 'First Option', value: '1' },
+                        { label: 'Second Option', value: '2' },
+                        { label: 'Third Option', value: '3' }
+                    ]
+                }
+            };
+            input.value = JSON.stringify(message, null, 2);
+        }
+
+        function sendTextMessage() {
+            const input = document.getElementById('agent-message');
+            const message = {
+                text: "Please type your response:",
+                inputConfig: {
+                    type: 'text',
+                    placeholder: 'Type your message here...'
+                }
+            };
+            input.value = JSON.stringify(message, null, 2);
+        }
+
+        // Send initial greeting
+        setTimeout(() => {
+            const agent = document.getElementById('chat-agent');
+            agent.sendMessage('Hello! I can show you different types of inputs. Try the buttons above and then click "Send as Agent"!', 'agent');
+        }, 1000);
     </script>
 </body>
 </html> 
