@@ -1,6 +1,6 @@
 # Contributing to s10k-conversational-agent
 
-Thank you for your interest in contributing to the s10k-conversational-agent! This document provides guidelines and instructions for setting up the development environment and extending the component.
+Thank you for your interest in contributing to the s10k-conversational-agent! This document provides guidelines and instructions for setting up the development environment and extending the component. If you make any changes, please fork the repository and submit a pull request so your feature can be reviewed and potentially included in the project.
 
 ## Development Setup
 

@@ -1,5 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import './s10k-chat-input';
 import { ChatInput, InputType, InputOption } from './s10k-chat-input';
 
 // Define the message type

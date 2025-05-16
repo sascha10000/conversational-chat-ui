@@ -1,6 +1,50 @@
 # S10k Conversational Agent
 
-A modern, customizable chat interface web component built with Lit. This component provides a beautiful chat interface with support for user and agent messages, typing indicators, and custom styling.
+A versatile web component built with Lit that creates an elegant chat interface. While offering standard features like user/agent messaging, typing indicators, and theming options, its standout capability is the ability to dynamically render different input types through agent messages.
+
+![S10k Conversational Agent Demo](./chat-input-examples.png)
+
+Currently, the component supports Dropdown, Radio, and Text input types. For instructions on implementing additional input types, please refer to the detailed guide in the [CONTRIBUTING.MD](./CONTRIBUTING.md) file.
+
+## Table of Contents
+- [Using the showcase](#using-the-showcase)
+- [Installation](#installation)
+- [Basic Usage](#basic-usage)
+  - [Using npm](#using-npm-recommended-for-bundlers-like-vite-webpack-etc)
+  - [Using CDN](#using-cdn-for-simple-http-servers)
+  - [Using local files](#using-local-files-for-simple-http-servers)
+- [Features](#features)
+- [Properties](#properties)
+- [Methods](#methods)
+- [Events](#events)
+- [Customization](#customization)
+  - [CSS Custom Properties](#css-custom-properties)
+  - [Example with Custom Theme](#example-with-custom-theme)
+- [Simple Example](#simple-example)
+- [Complete Example](#complete-example)
+- [Browser Support](#browser-support)
+- [License](#license)
+
+## Using the showcase
+To quickly try out the showcase without installing the package:
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/s10k-conversational-agent.git
+   cd s10k-conversational-agent
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+4. Open `http://localhost:5173` in your browser to see the demo.
 
 ## Installation
 
@@ -36,6 +80,7 @@ npm install s10k-conversational-agent
 
 <s10k-conversational-agent></s10k-conversational-agent>
 ```
+You can also just download the js file and directly reference it.
 
 ## Features
 
@@ -141,6 +186,67 @@ s10k-conversational-agent {
 </style>
 
 <s10k-conversational-agent></s10k-conversational-agent>
+```
+
+## Simple Example
+
+Here's a minimal example showing how to use the component with different input types:
+
+```html
+<script type="module">
+  import 's10k-conversational-agent';
+</script>
+
+<s10k-conversational-agent id="chat"></s10k-conversational-agent>
+
+<script>
+  const chat = document.getElementById('chat');
+
+  // Send a text message
+  chat.sendMessage({
+    sender: 'agent',
+    content: {
+      text: 'Hello! How can I help you today?'
+    }
+  });
+
+  // Send a message with radio buttons
+  chat.sendMessage({
+    sender: 'agent',
+    content: {
+      text: 'Please select your preferred contact method:',
+      inputConfig: {
+        type: 'radio',
+        options: [
+          { label: 'Email', value: 'email' },
+          { label: 'Phone', value: 'phone' },
+          { label: 'SMS', value: 'sms' }
+        ]
+      }
+    }
+  });
+
+  // Send a message with dropdown
+  chat.sendMessage({
+    sender: 'agent',
+    content: {
+      text: 'Select your timezone:',
+      inputConfig: {
+        type: 'dropdown',
+        options: [
+          { label: 'Eastern Time', value: 'ET' },
+          { label: 'Central Time', value: 'CT' },
+          { label: 'Pacific Time', value: 'PT' }
+        ]
+      }
+    }
+  });
+
+  // Listen for messages
+  chat.addEventListener('message', (e) => {
+    console.log('Message received:', e.detail);
+  });
+</script>
 ```
 
 ## Complete Example
