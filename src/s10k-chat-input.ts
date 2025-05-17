@@ -156,7 +156,7 @@ export class S10kChatInput extends LitElement {
   private handleSubmit() {
     if (this.input.value) {
       this.onSubmit(this.input.value);
-      this.input = { ...this.input, value: '' };
+      this.input = { type: 'text' };
     }
   }
 
@@ -203,9 +203,9 @@ export class S10kChatInput extends LitElement {
               @change="${this.handleSelectChange}"
               ?disabled="${this.disabled}"
             >
-              <option value="" disabled selected>Select an option</option>
+              <option value="" disabled ?selected=${!this.input.value}>Select an option</option>
               ${this.input.options?.map(option => html`
-                <option value="${option.value}">${option.label}</option>
+                <option value="${option.value}" ?selected=${this.input.value === option.value}>${option.label}</option>
               `)}
             </select>
             <button

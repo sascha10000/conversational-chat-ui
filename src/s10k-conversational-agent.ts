@@ -282,42 +282,16 @@ export class S10kConversationalAgent extends LitElement {
     this.scrollToBottom();
   }
 
+  updated(changedProperties: Map<string, any>) {
+    if (changedProperties.has('messages')) {
+      this.scrollToBottom();
+    }
+  }
+
   private scrollToBottom() {
     if (this.messagesContainer) {
       this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
     }
-  }
-
-  updated(changedProperties: Map<string, any>) {
-    if (changedProperties.has('messages')) {
-      this.scrollToBottom();
-      // Update input type based on the last agent message
-      this.updateInputTypeFromLastAgentMessage();
-    }
-  }
-
-  private updateInputTypeFromLastAgentMessage() {
-    // Find the last agent message
-    const lastAgentMessage = [...this.messages].reverse().find(m => m.sender === 'agent');
-    
-    if (lastAgentMessage) {
-      try {
-        // Try to parse the message text as JSON
-        const parsedContent = JSON.parse(lastAgentMessage.content.text);
-        if (parsedContent.inputConfig) {
-          this.currentInput = {
-            type: parsedContent.inputConfig.type,
-            options: parsedContent.inputConfig.options,
-            placeholder: parsedContent.inputConfig.placeholder
-          };
-          return;
-        }
-      } catch (e) {
-        // If parsing fails, it's a regular text message
-      }
-    }
-    // Default to text input if no input config is found
-    this.currentInput = { type: 'text' };
   }
 
   private handleInputSubmit(value: string) {
@@ -334,6 +308,7 @@ export class S10kConversationalAgent extends LitElement {
     
     this.messages = [...(this.messages || []), userMessage];
     this.handleMessage(userMessage);
+    this.currentInput = { type: 'text' };
     this.isLoading = true;
   }
 
@@ -361,6 +336,25 @@ export class S10kConversationalAgent extends LitElement {
     }));
   }
 
+  private updateInputTypeFromLastAgentMessage(message: Message) {
+    try {
+      // Try to parse the message text as JSON
+      const parsedContent = JSON.parse(message.content.text);
+      if (parsedContent.inputConfig) {
+        this.currentInput = {
+          type: parsedContent.inputConfig.type,
+          options: parsedContent.inputConfig.options,
+          placeholder: parsedContent.inputConfig.placeholder
+        };
+        return;
+      }
+    } catch (e) {
+      // If parsing fails, it's a regular text message
+    }
+    // Default to text input if no input config is found
+    this.currentInput = { type: 'text' };
+  }
+
   public sendMessage(text: string, sender: MessageSender = 'agent') {
     const message: Message = {
       content: {
@@ -375,9 +369,11 @@ export class S10kConversationalAgent extends LitElement {
     
     if (sender === 'agent') {
       this.isLoading = false;
-    }
+      this.updateInputTypeFromLastAgentMessage(message);
+    } 
   }
-
+ 
+    
   private formatTimestamp(timestamp: number): string {
     const date = new Date(timestamp);
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
